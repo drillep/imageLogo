@@ -1,31 +1,47 @@
 const sharp = require('sharp');
 const request = require('request')
-var src = 'https://rawgit.com/drillep/imageLogo/master/5050.png'
-
+// const fetchUrl = require('fetch').fetchUrl
+// const fetch = require('node-fetch');
+var newSrc = 'https://rawgit.com/drillep/imageLogo/master/drillep.jpg'
+var originalsrc = 'https://rawgit.com/drillep/imageLogo/\{this\}/5050.png'
+var src = originalsrc.replace('{this}', 'master')
+var total = 0
+var subtotal = 0
 
 function modifyImage(src, dest, width, height) {
   request(src, { encoding: null }, function process(error, response, body) {
-    if (error) return console.error(error);
+  if (error) return console.error(error);
+  // fetchUrl(src, function(error, meta, body) {
+  //   if(error) {
+  //     console.log('fin')
+  //   } else {
+  // fetch(src)
+  //   .then(res => res.buffer())
+  //   .then(body =>
       sharp(body)
-        .greyscale()
-        .resize(1, 1)
-        //.extract({ left: 0, top: 0, width: 308, height: 156 })
-        //.pipe(roundedCornerResizer)
-        .raw()
-        .toBuffer(function(err, data) {
-          var total = 0
-          var subtotal
-          for (b of data) {
-            console.log(parseInt(b,10))
-            total += parseInt(b,10)
-          }
-          console.log('the total is ' + total)
-        })
-        // .toFile(dest);
-    });
-}
+      .greyscale()
+      .extract({ left: 0, top: 0, width: 308, height: 156 })
+      .pipe(roundedCornerResizer)
+      .raw()
+      .toBuffer(function(err, data) {
+        for (b of data) {
+          subtotal++
+          total += parseInt(b,10)
+        }
+        total = total/subtotal
+        console.log('the total is ' + total)
+      })
+      // .toFile(dest)
+    })
+    console.log('return: ', total)
+    console.log('hey')
+    // console.log(returnValue)
+  }
 
-modifyImage(src, 'modifiedImage.png', 189, 189);
+console.log(originalsrc)
+console.log(src)
+modifyImage(newSrc, 'modifiedImage.jpg', 1920, 1080);
+console.log('after async' + total)
 
 const roundedCorners = new Buffer(
   '<svg><rect x="0" y="0" width="200" height="200" rx="50" ry="50"/></svg>'
@@ -33,6 +49,6 @@ const roundedCorners = new Buffer(
 
 const roundedCornerResizer =
   sharp()
-    // .resize(200, 200)
+    .resize(1920, 1080)
     .overlayWith(roundedCorners, { cutout: true })
     .png();
